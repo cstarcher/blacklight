@@ -4,20 +4,20 @@
   The blacklight modal plugin can display some interactions inside a Bootstrap
   modal window, including some multi-page interactions.
 
-  It supports unobtrusive Javascript, where a link or form that would have caused
+  It supports unobtrusive Javascript, where a link that would have caused
   a new page load is changed to display it's results inside a modal dialog,
   by this plugin.  The plugin assumes there is a Bootstrap modal div
   on the page with id #blacklight-modal to use as the modal -- the standard Blacklight
   layout provides this.
 
-  To make a link or form have their results display inside a modal, add
-  `data-blacklight-modal="trigger"` to the link or form. (Note, form itself not submit input)
+  To make a link have its results display inside a modal, add
+  `data-blacklight-modal="trigger"` to the link.
   With Rails link_to helper, you'd do that like:
 
       link_to something, link, data: { blacklight_modal: "trigger" }
 
-  The results of the link href or form submit will be displayed inside
-  a modal -- they should include the proper HTML markup for a bootstrap modal's
+  The results of the link href will be displayed inside
+  a modal -- it should include the proper HTML markup for a bootstrap modal's
   contents. Also, you ordinarily won't want the Rails template with wrapping
   navigational elements to be used.  The Rails controller could suppress
   the layout when a JS AJAX request is detected, OR the response
@@ -31,10 +31,10 @@
   an href on this link for non-JS contexts, we'll make sure
   inside the modal it closes the modal and the link is NOT followed.
 
-  Link or forms inside the modal will ordinarily cause page loads
+  Links inside the modal will ordinarily cause page loads
   when they are triggered. However, if you'd like their results
   to stay within the modal, just add `data-blacklight-modal="preserve"`
-  to the link or form.
+  to the link.
 
   Here's an example of what might be returned, demonstrating most of the devices available:
 
@@ -82,12 +82,11 @@ if (Blacklight.modal === undefined) {
 // a Bootstrap modal div that should be already on the page hidden
 Blacklight.modal.modalSelector = "#blacklight-modal";
 
-// Trigger selectors identify forms or hyperlinks that should open
+// Trigger selector identifies hyperlinks that should open
 // inside a modal dialog.
 Blacklight.modal.triggerLinkSelector  = "a[data-blacklight-modal~=trigger]";
-Blacklight.modal.triggerFormSelector  = "form[data-blacklight-modal~=trigger]";
 
-// preserve selectors identify forms or hyperlinks that, if activated already
+// preserve selectors identify hyperlinks that, if activated already
 // inside a modal dialog, should have destinations remain inside the modal -- but
 // won't trigger a modal if not already in one.
 //
@@ -95,7 +94,6 @@ Blacklight.modal.triggerFormSelector  = "form[data-blacklight-modal~=trigger]";
 // be preserved. MUST be manually prefixed with the modal selector,
 // so they only apply to things inside a modal.
 Blacklight.modal.preserveLinkSelector = Blacklight.modal.modalSelector + ' a[data-blacklight-modal~=preserve]';
-Blacklight.modal.preserveFormSelector = Blacklight.modal.modalSelector + ' form[data-blacklight-modal~=preserve]'
 
 Blacklight.modal.containerSelector    = "[data-blacklight-modal~=container]";
 
@@ -146,20 +144,6 @@ Blacklight.modal.modalAjaxLinkClick = function(e) {
   .done(Blacklight.modal.receiveAjax)
 };
 
-Blacklight.modal.modalAjaxFormSubmit = function(e) {
-    e.preventDefault();
-
-    $.ajax({
-      url: $(this).attr('action'),
-      data: $(this).serialize(),
-      type: $(this).attr('method') // POST
-    })
-    .fail(Blacklight.modal.onFailure)
-    .done(Blacklight.modal.receiveAjax)
-}
-
-
-
 Blacklight.modal.setup_modal = function() {
 	// Event indicating blacklight is setting up a modal link,
   // you can catch it and call e.preventDefault() to abort
@@ -173,8 +157,6 @@ Blacklight.modal.setup_modal = function() {
   // still only gets the event handler called once.
   $("body").on("click", Blacklight.modal.triggerLinkSelector  + ", " + Blacklight.modal.preserveLinkSelector,
     Blacklight.modal.modalAjaxLinkClick);
-  $("body").on("submit", Blacklight.modal.triggerFormSelector + ", " + Blacklight.modal.preserveFormSelector,
-    Blacklight.modal.modalAjaxFormSubmit);
 
   // Catch our own custom loaded event to implement data-blacklight-modal=closed
   $("body").on("loaded.blacklight.blacklight-modal", Blacklight.modal.check_close_modal);
